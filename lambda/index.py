@@ -3,6 +3,7 @@ import json
 import os
 import boto3
 import re  # 正規表現モジュールをインポート
+import urllib.request
 from botocore.exceptions import ClientError
 
 
@@ -21,7 +22,7 @@ bedrock_client = None
 MODEL_ID = os.environ.get("MODEL_ID", "us.amazon.nova-lite-v1:0")
 
 # FastAPIのエンドポイントURL
-FASTAPI_URL = os.environ.get("NGROK_API_URL", "https://a357-34-168-87-93.ngrok-free.app/generate")
+FASTAPI_URL = os.environ.get("NGROK_API_URL", "https://ffae-34-82-190-161.ngrok-free.app/generate")
 
 def lambda_handler(event, context):
     try:
@@ -30,7 +31,7 @@ def lambda_handler(event, context):
         body = json.loads(event['body'])
         message = body['message']
 
-        # FastAPI用のリクエストペイロード
+        # リクエストボディの作成
         payload = {
             "prompt": message,
             "max_new_tokens": 512,
@@ -38,15 +39,21 @@ def lambda_handler(event, context):
             "temperature": 0.7,
             "top_p": 0.9
         }
+        data = json.dumps(payload).encode("utf-8")
 
-        print(f"Sending request to FastAPI at {FASTAPI_URL}")
-        response = requests.post(FASTAPI_URL, json=payload)
+        # リクエストオブジェクトを作成
+        req = urllib.request.Request(
+            FASTAPI_URL,
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
 
-        if response.status_code != 200:
-            raise Exception(f"FastAPI error {response.status_code}: {response.text}")
-
-        result = response.json()
-        assistant_response = result.get("generated_text", "")
+        # リクエスト送信とレスポンス受信
+        with urllib.request.urlopen(req) as res:
+            res_body = res.read()
+            result = json.loads(res_body)
+            assistant_response = result.get("generated_text", "")
 
         return {
             "statusCode": 200,
