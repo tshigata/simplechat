@@ -42,11 +42,11 @@ Amazon Bedrock を使用したチャットボットアプリケーションで�
 ### 1. リポジトリのクローン
 
 ```
-$ mkdir /tmp/testdir
-$ cd /tmp/testdir/
-$ export npm_config_cache=/tmp/npm-cache
-$ export npm_config_prefix=/tmp/npm-global
-$ sudo npm install -g aws-cdk@latest
+mkdir /tmp/testdir
+cd /tmp/testdir/
+export npm_config_cache=/tmp/npm-cache
+export npm_config_prefix=/tmp/npm-global
+sudo npm install -g aws-cdk@latest
 
 git clone https://github.com/keisskaws/simplechat
 cd simplechat
